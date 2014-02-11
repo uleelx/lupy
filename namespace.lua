@@ -29,8 +29,10 @@ print("10**11 mod 12 = "..math.powmod(10, 11, 12)) --> 4
 
 print("\n----- show newest math library-----")
 for k, v in pairs(math) do
-  print(k, v)
+  io.write(k.."\t"..tostring(v))
   if k == "powmod" then
-    print("¡ü¡ü¡ü\n(this function is added by monkey patching)\n")
+    print("  (this function is added by monkey patching)")
+  else
+    io.write('\n')
   end
 end
