@@ -15,14 +15,14 @@ return function(name)
   if not newclass then
     local superclass = env[supername] or env
     newclass = {
-      __type = {clsname, unpack(superclass.__type or {"Object"})},
-      is = function(self, c) return match(concat(self.__type, ','), (c or "([^,]+)")) end,
+      __type__ = {clsname, unpack(superclass.__type__ or {"Object"})},
+      is = function(self, c) return match(concat(self.__type__, ','), (c or "([^,]+)")) end,
       include = function(...)
         for i = 1, select("#", ...) do
           local cls = select(i, ...)
-          insert(newclass.__type, 2, cls.__type[1])
+          insert(newclass.__type__, 2, cls.__type__[1])
           for k, v in pairs(cls) do
-            if k ~= "__type" and k ~= "__index" and k ~= "include" and k ~= "is" then
+            if k ~= "__type__" and k ~= "__index" and k ~= "include" and k ~= "is" then
               newclass[k] = v
             end
           end
@@ -36,8 +36,8 @@ return function(name)
             return member(self, ...)
           end
         else
-          return member or newclass.__missing and function(...)
-            return newclass.__missing(self, member_name, ...)
+          return member or newclass.__missing__ and function(...)
+            return newclass.__missing__(self, member_name, ...)
           end
         end
       end
@@ -45,6 +45,7 @@ return function(name)
     for _, k in pairs(metamethods) do
       newclass[k] = superclass[k]
     end
+    newclass.__class__ = newclass
     setmetatable(newclass, {
       __index = superclass,
       __call = function(class, ...)
