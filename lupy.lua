@@ -7,13 +7,16 @@ local metamethods = {
   "__concat", "__len", "__eq", "__lt", "__le","__newindex", "__call"
 }
 
+local _Shadow = {__index = _ENV, __type__ = {"_Shadow"}}
+setmetatable(_Shadow, _Shadow)
+
 return function(name)
   if _VERSION == "Lua 5.2" then upvaluejoin(getinfo(1, 'f').func, 1, getinfo(2, 'f').func, 1) end
   local env = _ENV or getfenv(2)
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
   local newclass = env[clsname]
   if not newclass then
-    local superclass = env[supername] or env
+    local superclass = env[supername] or (env.__type__ and _Shadow or env)
     newclass = {
       __type__ = {clsname, unpack(superclass.__type__ or {"Object"})},
       is = function(self, c) return match(concat(self.__type__, ','), (c or "([^,]+)")) end,
@@ -51,9 +54,7 @@ return function(name)
     }
     if _VERSION == "Lua 5.1" then
       meta.__newindex = function(class, k, v)
-        if type(v) == "function" then
-          setfenv(v, _G)
-        end
+        if type(v) == "function" then setfenv(v, _G) end
         rawset(class, k, v)
       end
     end
