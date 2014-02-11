@@ -31,10 +31,7 @@ return function(name)
       __index = function(self, member_name)
         local member = newclass[member_name]
         if type(member) == "function" then
-          if _VERSION == "Lua 5.1" then setfenv(member, _G) end
-          return function(...)
-            return member(self, ...)
-          end
+          return function(...) return member(self, ...) end
         else
           return member or newclass.__missing__ and function(...)
             return newclass.__missing__(self, member_name, ...)
@@ -42,27 +39,35 @@ return function(name)
         end
       end
     }
-    for _, k in pairs(metamethods) do
-      newclass[k] = superclass[k]
-    end
+    for _, k in pairs(metamethods) do newclass[k] = superclass[k] end
     newclass.__class__ = newclass
-    setmetatable(newclass, {
+    local meta = {
       __index = superclass,
       __call = function(class, ...)
         local instance = setmetatable({}, class)
         if class.__init__ then class.__init__(instance, ...) end
         return instance
       end
-    })
+    }
+    if _VERSION == "Lua 5.1" then
+      meta.__newindex = function(class, k, v)
+        if type(v) == "function" then
+          setfenv(v, _G)
+        end
+        rawset(class, k, v)
+      end
+    end
+    setmetatable(newclass, meta)
     env[clsname] = newclass
   end
-  newclass._end = function() _ENV, _end = env end
-  _ENV = newclass
   if _VERSION == "Lua 5.1" then
     newclass._end = function()
       _ENV, newclass._end = nil
       setfenv(2, env)
     end
     setfenv(2, newclass)
+  else
+    newclass._end = function() _ENV, _end = env end
+    _ENV = newclass
   end
 end
