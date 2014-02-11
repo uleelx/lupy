@@ -1,20 +1,4 @@
-if _VERSION == "Lua 5.2" and ... then
-  local modname = ...
-  local getinfo, upvaluejoin = debug.getinfo, debug.upvaluejoin
-  if getinfo(require, "S").what == "C" then
-    upvaluejoin(getinfo(1, 'f').func, 1, getinfo(3, 'f').func, 1)
-    local _require = require
-    require = function(m)
-      if m == modname then
-        package.loaded[modname] = nil
-      end
-      return _require(m)
-    end
-  else
-    upvaluejoin(getinfo(1, 'f').func, 1, getinfo(4, 'f').func, 1)
-  end
-end
-
+local getinfo, upvaluejoin = debug.getinfo, debug.upvaluejoin
 local unpack, concat, insert = unpack or table.unpack, table.concat, table.insert
 local match = string.match
 
@@ -24,6 +8,7 @@ local metamethods = {
 }
 
 return function(name)
+  if _VERSION == "Lua 5.2" then upvaluejoin(getinfo(1, 'f').func, 1, getinfo(2, 'f').func, 1) end
   local env = _ENV or getfenv(2)
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
   local newclass = env[clsname]
