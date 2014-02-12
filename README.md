@@ -1,8 +1,8 @@
 lupy
 ===========
 
-A small Python-style OO implementation for Lua. It also gains some good features from Ruby.
-It has been tested on Lua 5.2.3 and LuaJIT 2.0.2 using the examples in repo. Welcome to test it more.
+A small Python-style OO implementation for Lua. It also gains some good features from Ruby.<br>
+It has been tested on Lua 5.2.3 and LuaJIT 2.0.2 using the examples in repo. Welcome to fork and test it more.
 
 Quick Look
 ==========
@@ -10,10 +10,24 @@ Quick Look
 ```lua
 local class = require 'lupy'
 
+local module = class -- alias
+
 local unpack = unpack or table.unpack
 
-class [[Iterator]]
+module [[Iterable]]
 
+  function __call(self)
+    local items = {self.next()}
+    if #items > 0 then return unpack(items) end
+    self.reset()
+  end
+
+_end()
+
+class [[Sequence]]
+
+  include(Iterable)
+  
   function __init__(self, seq)
     self.seq = seq
   end
@@ -27,20 +41,14 @@ class [[Iterator]]
     self.pointer = self.pointer + 1
     return self.seq[self.pointer]
   end
-  
-  function __call(self)
-    local items = {self.next()}
-    if #items > 0 then return unpack(items) end
-    self.reset()
-  end
 
 _end()
 
 function iter(seq)
-  if seq.is and seq.is("Iterator") then 
+  if seq.is and seq.is("Iterable") then 
     return seq
   elseif type(seq) == "table" then
-    return Iterator(seq)
+    return Sequence(seq)
   end
   error "Can not iterate"
 end
@@ -61,7 +69,7 @@ three
 
 Usage
 ==========
-Add *lupy.lua* file inside your project or where you store your lua libraries.
+Copy *lupy.lua* file to your project or where your lua libraries stored.<br>
 Then write this in any Lua file where you want to use it:
 ```lua
 local class = require 'lupy'
