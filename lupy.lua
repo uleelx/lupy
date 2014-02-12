@@ -7,8 +7,8 @@ local metamethods = {
   "__concat", "__len", "__eq", "__lt", "__le","__newindex", "__call"
 }
 
-local _Shadow = {__index = _ENV, __type__ = {"_Shadow"}}
-setmetatable(_Shadow, _Shadow)
+local Object = {__index = _ENV, __type__ = {"Object"}}
+setmetatable(Object, Object)
 
 return function(name)
   if _VERSION == "Lua 5.2" then upvaluejoin(getinfo(1, 'f').func, 1, getinfo(2, 'f').func, 1) end
@@ -16,18 +16,18 @@ return function(name)
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
   local newclass = env[clsname]
   if not newclass then
-    local superclass = env[supername] or (env.__type__ and _Shadow or env)
+    local superclass = env[supername] or (env.__type__ and Object or env)
     newclass = {
-      __type__ = {clsname, unpack(superclass.__type__ or {"Object"})},
+      __type__ = {
+        env.__type__ and env.__type__[1].."::"..clsname or clsname,
+        unpack(superclass.__type__ or {"Object"})
+      },
       is = function(self, c) return match(concat(self.__type__, ','), (c or "([^,]+)")) end,
-      include = function(...)
-        for i = 1, select("#", ...) do
-          local cls = select(i, ...)
-          insert(newclass.__type__, 2, cls.__type__[1])
-          for k, v in pairs(cls) do
-            if k ~= "__type__" and k ~= "__index" and k ~= "include" and k ~= "is" then
-              newclass[k] = v
-            end
+      include = function(m)
+        insert(newclass.__type__, 2, m.__type__[1])
+        for k, v in pairs(m) do
+          if k ~= "__type__" and k ~= "__index" and k ~= "include" and k ~= "is" then
+            newclass[k] = v
           end
         end
       end,
