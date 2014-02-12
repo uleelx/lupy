@@ -36,3 +36,23 @@ for k, v in pairs(math) do
     io.write('\n')
   end
 end
+
+print("-----------------------")
+
+local namespace = module
+local class = module
+
+namespace [[Root]]
+
+  class [[Test]]
+    
+    function __init__(self)
+       self.value = "I'm an instance of Root.Test!"
+    end
+    
+  _end()
+  
+_end()
+
+local rt = Root.Test()
+print(rt.value)
