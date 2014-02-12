@@ -5,7 +5,8 @@ local unpack = unpack or table.unpack
 
 class [[Array]]
 
-  include(Iterator) -- classes mixin(like Ruby)
+  include(Iterable) -- classes mixin(like Ruby)
+  include(Sequence)
 
   function __init__(self, ...)
     self.seq = {...}

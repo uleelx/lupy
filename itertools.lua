@@ -1,12 +1,31 @@
 local class = require 'lupy'
+local module = class -- alias
+
 local unpack = unpack or table.unpack
+
+---------------
+---Interface---
+---------------
+
+module [[Iterable]]
+
+  function __call(self)
+    local items = {self.next()}
+    if #items > 0 then return unpack(items) end
+    self.reset()
+  end
+
+_end()
+
 
 ---------------
 ---Iterators---
 ---------------
 
-class [[Iterator]]
+class [[Sequence]]
 
+  include(Iterable)
+  
   function __init__(self, seq)
     self.seq = seq
   end
@@ -20,19 +39,13 @@ class [[Iterator]]
     self.pointer = self.pointer + 1
     return self.seq[self.pointer]
   end
-  
-  function __call(self)
-    local items = {self.next()}
-    if #items > 0 then return unpack(items) end
-    self.reset()
-  end
 
 _end()
 
 
 class [[Chain]]
 
-  include(Iterator)
+  include(Iterable)
   
   function __init__(self, ...)
     self.iters = iter{...}
@@ -57,7 +70,8 @@ _end()
 
 class [[Reverse]]
 
-  include(Iterator)
+  include(Iterable)
+  include(Sequence)
 
   function reset(self)
     self.pointer = #self.seq + 1
@@ -74,7 +88,7 @@ _end()
 
 class [[Range]]
 
-  include(Iterator)
+  include(Iterable)
 
   function __init__(self, i, j, s)
     self.start = i or 1
@@ -101,7 +115,7 @@ _end()
 
 class [[Map]]
 
-  include(Iterator)
+  include(Iterable)
 
   function __init__(self, f, ...)
     self.func = f
@@ -132,7 +146,7 @@ _end()
 
 class [[Pair]]
 
-  include(Iterator)
+  include(Iterable)
   
   function __init__(self, t)
     self.table = t
@@ -157,16 +171,16 @@ _end()
 --------------
 
 function iter(seq)
-  if seq.is and seq.is("Iterator") then 
+  if seq.is and seq.is("Iterable") then 
     return seq
   elseif type(seq) == "table" then
-    return Iterator(seq)
+    return Sequence(seq)
   end
   error "Can not iterate"
 end
 
 function list(iterator)
-  if iterator.is and iterator.is("Iterator") then
+  if iterator.is and iterator.is("Iterable") then
     local sequence = {}
     for x in iterator do
       table.insert(sequence, x)
