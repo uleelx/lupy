@@ -68,10 +68,9 @@ class [[Chain]]
 _end()
 
 
-class [[Reverse]]
+class [[Reverse < Sequence]]
 
   include(Iterable)
-  include(Sequence)
 
   function reset(self)
     self.pointer = #self.seq + 1

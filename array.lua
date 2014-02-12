@@ -3,10 +3,9 @@ require 'itertools'
 local class = require 'lupy'
 local unpack = unpack or table.unpack
 
-class [[Array]]
+class [[Array < Sequence]]
 
   include(Iterable) -- classes mixin(like Ruby)
-  include(Sequence)
 
   function __init__(self, ...)
     self.seq = {...}
@@ -119,7 +118,7 @@ print("\titerate 'a' again")
 print("a[2] = ", a.get(2), "using 'get' method")
 
 a.set(4, 9)
-print("a=", a, "set a[4] = 9, using 'set' method\n")
+print("a=", a, "set a[4] = 9, using 'set' method")
 
 a[3] = 8
 print("a=", a, "set a[3] = 8, using '__newindex' metamethod\n")

@@ -3,8 +3,60 @@ require 'array'
 require 'curry'
 
 local class = require 'lupy'
+local module = class -- alias
+local namespace = class -- alias
 
-printTable = compose(print, Array)
+-- class, module and namespace refers to the same function, but we assume this:
+-- 1. namespace is just a container of things (no mixin, no inheritance, no instance)
+-- 2. module is a set of functions and constant variables (no inheritance, no instance)
+-- 3. class is a prototype or template for creating objects (cannot be mixed in)
+
+
+local printTable = compose(print, Array)
+
+-----------------
+----namespace----
+-----------------
+
+namespace [[Root]]
+
+  class [[Test]]
+    
+    function __init__(self)
+       self.value = "I'm an instance of Root.Test!"
+    end
+    
+  _end()
+  
+_end()
+
+local rt = Root.Test()
+print(rt.value)
+
+
+-- open an existing module(table) to do monkey patching
+module [[math]]
+
+  function powmod(x, y, m)
+    local result = 1
+    local r
+    x = x % m
+    while y ~= 0 do
+      y, r = math.floor(y / 2), math.fmod(y, 2)
+      if r == 1 then
+        result = (result*x) % m
+      end
+      x = (x*x) % m
+    end
+    return result
+  end
+
+_end()
+
+if _VERSION == "Lua 5.1" then setfenv(math.powmod, _G) end -- because 'math' module is not created by lupy
+
+print("10**11 mod 12 = "..math.powmod(10, 11, 12)) --> 4
+
 
 ----------------------
 ----class property----
@@ -32,6 +84,7 @@ print(d.count) --> 2
 print(c.count) --> 2
 
 print(counter.count) --> 2
+
 
 --------------------
 ----type testing----
@@ -66,10 +119,10 @@ print(b.is(b_type))     -- 'B'
 printTable(A.__type__) -- [A, Object]
 printTable(B.__type__) -- [B, A, Object]
 
+
 --------------------
 ----inner class-----
 --------------------
-
 function conflict()
   print("global")
 end
@@ -107,17 +160,18 @@ Outer.conflict()          -- nil, 'outer'
 Outer.Inner.conflict()    -- nil, 'inner'
 printTable(Outer.Inner.__type__) -- [Outer::Inner, Object]
 
+
 -----------------------------
 ----inheritance and mixin----
 --------(from Ruby)----------
 -----------------------------
-class [[C]]
+module [[C]]
   function conflict(self)
     print("C")
   end
 _end()
 
-class [[D]]
+module [[D]]
   function conflict(self)
     print("D")
   end
