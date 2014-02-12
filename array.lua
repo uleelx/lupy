@@ -67,6 +67,14 @@ class [[Array]] -- reopen class here to add or modify sth.(i.e. monkey patching)
   function __add(self, b) -- operator overloading (+)
     return Array(list(chain(self, b)))
   end
+  
+  function __newindex(self, i, v)
+    if type(i) == "number" then
+      rawset(self.seq, i, v)
+    else
+      rawset(self, i, v)
+    end
+  end
 
 _end()
 
@@ -110,7 +118,10 @@ print("\titerate 'a' again")
 print("a[2] = ", a.get(2), "using 'get' method")
 
 a.set(4, 9)
-print("a=", a, "set a[4] = 9\n")
+print("a=", a, "set a[4] = 9, using 'set' method\n")
+
+a[3] = 8
+print("a=", a, "set a[3] = 8, using '__newindex' metamethod\n")
 
 local b = a.slice(2, -2) -- create a new Array instance by 'slice' method
 print("b = ", b, "this is a slice of 'a' (i.e. b = a[2, -2])")
@@ -131,6 +142,6 @@ print("top(c) = ", c.pop(), "using 'pop' method")
 print("c = ", c, "final state\n")
 
 -- test for operator overloading
-print("a + b + c = ", a + b + c , "using '__add' method\n")
+print("a + b + c = ", a + b + c , "using '__add' metamethod\n")
 
 end -- end of tests
