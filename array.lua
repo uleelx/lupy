@@ -5,8 +5,6 @@ local unpack = unpack or table.unpack
 
 class [[Array < Sequence]]
 
-  include(Iterable) -- classes mixin(like Ruby)
-
   function __init__(self, ...)
     self.seq = {...}
     if #self.seq == 1 and type(self.seq[1]) == "table" then
