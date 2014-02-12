@@ -1,6 +1,10 @@
 -- this file contains several tests for lupy basics
+require 'array'
+require 'curry'
 
 local class = require 'lupy'
+
+printTable = compose(print, Array)
 
 ----------------------
 ----class property----
@@ -33,11 +37,15 @@ print(counter.count) --> 2
 ----type testing----
 --------------------
 class [[A]]
-
+  function conflict(self)
+    print("A")
+  end
 _end()
 
 class [[B < A]] -- inheritance
-
+  function conflict(self)
+    print("B")
+  end
 _end()
 
 local a = A()
@@ -55,8 +63,8 @@ print(a.is(b_type))     -- nil
 print(b.is(a_type))     -- 'A'
 print(b.is(b_type))     -- 'B'
 
-print(table.concat(a.__type__, ',')) -- 'A,Object'
-print(table.concat(b.__type__, ',')) -- 'B,A,Object'
+printTable(A.__type__) -- [A, Object]
+printTable(B.__type__) -- [B, A, Object]
 
 --------------------
 ----inner class-----
@@ -97,4 +105,30 @@ Outer.inner.conflict()    -- inner instance of Outer class, 'inner'
 inner.conflict()          -- inner instance, 'inner'
 Outer.conflict()          -- nil, 'outer'
 Outer.Inner.conflict()    -- nil, 'inner'
-print(table.concat(inner.__type__, ',')) -- 'Inner,_Shadow'
+printTable(Outer.Inner.__type__) -- [Outer::Inner, Object]
+
+-----------------------------
+----inheritance and mixin----
+--------(from Ruby)----------
+-----------------------------
+class [[C]]
+  function conflict(self)
+    print("C")
+  end
+_end()
+
+class [[D]]
+  function conflict(self)
+    print("D")
+  end
+_end()
+
+class [[E < B]] -- inheritance
+  include(C) -- mixin
+  include(D)
+_end()
+
+local e = E()
+e.conflict() -- print 'D'
+
+printTable(E.__type__) -- [E, D, C, B, A, Object]
