@@ -1,6 +1,7 @@
 local getinfo, upvaluejoin = debug.getinfo, debug.upvaluejoin
+local getfenv, setfenv, setmetatable, rawset, type = getfenv, setfenv, setmetatable, rawset, type
 local unpack, concat, insert = unpack or table.unpack, table.concat, table.insert
-local match = string.match
+local pairs, match = pairs, string.match
 
 local metamethods = {
   "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm",
