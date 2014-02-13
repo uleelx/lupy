@@ -71,7 +71,7 @@ return function(name)
   end
   if _VERSION == "Lua 5.1" then
     newclass._end = function()
-      _ENV, newclass._end = nil
+      newclass._end = nil
       setfenv(2, env)
     end
     setfenv(2, newclass)
