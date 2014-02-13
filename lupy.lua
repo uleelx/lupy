@@ -27,7 +27,7 @@ return function(name)
       include = function(m)
         insert(newclass.__type__, 2, m.__type__[1])
         for k, v in pairs(m) do
-          if k ~= "__type__" and k ~= "__index" and k ~= "include" and k ~= "is" then
+          if k ~= "__type__" and k ~= "__index" and k ~= "include" and k ~= "is" and k ~= "__class__"then
             newclass[k] = v
           end
         end
