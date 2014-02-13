@@ -4,35 +4,18 @@ require 'curry'
 
 local class = require 'lupy'
 local module = class -- alias
-local namespace = class -- alias
-
--- class, module and namespace refers to the same function, but we assume this:
--- 1. namespace is just a container of things (no mixin, no inheritance, no instance)
--- 2. module is a set of functions and constant variables (no inheritance, no instance)
--- 3. class is a prototype or template for creating objects (cannot be mixed in)
-
-
 local printTable = compose(print, Array)
+
+-- class and module refers to the same function, but we assume this:
+-- 1. module is a set of functions and constant variables (no inheritance, no instance)
+-- 2. class is a prototype or template for creating objects (cannot be mixed in)
+
 
 -----------------
 ----namespace----
 -----------------
 
-namespace [[Root]]
-
-  class [[Test]]
-    
-    function __init__(self)
-       self.value = "I'm an instance of Root.Test!"
-    end
-    
-  _end()
-  
-_end()
-
-local rt = Root.Test()
-print(rt.value)
-
+-- see 'inner class' section for more namespace examples
 
 -- open an existing module(table) to do monkey patching
 module [[math]]
