@@ -12,7 +12,10 @@ local Object = {__index = _ENV, __type__ = {"Object"}}
 setmetatable(Object, Object)
 
 return function(name)
-  if _VERSION == "Lua 5.2" then upvaluejoin(getinfo(1, 'f').func, 1, getinfo(2, 'f').func, 1) end
+  if _VERSION == "Lua 5.2" then
+    upvaluejoin(getinfo(1, 'f').func, 1,
+                getinfo(2, 'f').func, 1)
+  end
   local env = _ENV or getfenv(2)
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
   local newclass = env[clsname]
@@ -23,7 +26,9 @@ return function(name)
         env.__type__ and env.__type__[1].."::"..clsname or clsname,
         unpack(superclass.__type__ or {"Object"})
       },
-      is = function(self, c) return match(concat(self.__type__, ','), (c or "([^,]+)")) end,
+      is = function(self, c)
+        return match(concat(self.__type__, ','), (c or "([^,]+)"))
+      end,
       include = function(m)
         insert(newclass.__type__, 2, m.__type__[1])
         for k, v in pairs(m) do
