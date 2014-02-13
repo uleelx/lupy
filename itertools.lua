@@ -28,6 +28,7 @@ class [[Sequence]]
   
   function __init__(self, seq)
     self.seq = seq
+    self.reset()
   end
   
   function reset(self)
@@ -35,7 +36,6 @@ class [[Sequence]]
   end
   
   function next(self)
-    if not self.pointer then self.reset() end
     self.pointer = self.pointer + 1
     return self.seq[self.pointer]
   end

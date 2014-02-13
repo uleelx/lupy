@@ -10,6 +10,7 @@ class [[Array < Sequence]]
     if #self.seq == 1 and type(self.seq[1]) == "table" then
       self.seq = {unpack(self.seq[1])}
     end
+    Sequence.__init__(self, self.seq)
   end
 
   function get(self, i)
