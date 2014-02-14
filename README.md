@@ -4,6 +4,11 @@ lupy
 A small Python-style OO implementation for Lua. It also gains some good features from Ruby.<br>
 It has been tested on Lua 5.2.3 and LuaJIT 2.0.2 using the examples in repo. Welcome to fork and test it more.
 
+Philosophy
+===========
+
+"Things should be as simple as possible, but no simpler." [[1]](http://python-history.blogspot.com/2009/01/pythons-design-philosophy.html)
+
 Quick Look
 ==========
 
@@ -23,6 +28,7 @@ module [[Iterable]]
   end
 
 _end()
+
 
 class [[Sequence]]
 
@@ -44,6 +50,7 @@ class [[Sequence]]
 
 _end()
 
+
 function iter(seq)
   if seq.is and seq.is("Iterable") then 
     return seq
@@ -52,6 +59,7 @@ function iter(seq)
   end
   error "Can not iterate"
 end
+
 
 local ary = iter{'one', 'two', 'three'}
 
