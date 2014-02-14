@@ -11,13 +11,33 @@ local printTable = compose(print, Array)
 -- 2. class is a prototype or template for creating objects (cannot be mixed in)
 
 
+-------------------------------
+----define, create and call----
+-------------------------------
+
+class [[Person]]
+
+  function __init__(self, name)
+    self.name = name
+  end
+  
+  function say(self, msg)
+    print(self.name..": "..msg)
+  end
+
+_end()
+
+local I = Person("Peer")
+I.say("Hello world!")
+
+
 -----------------
 ----namespace----
 -----------------
 
 -- see 'inner class' section for more namespace examples
 
--- open an existing module(table) to do monkey patching
+-- open an existing module, class or raw table to do monkey patching
 module [[math]]
 
   function powmod(x, y, m)
@@ -54,6 +74,8 @@ class [[counter]]
   
 _end()
 
+print(count) -- nil, because 'count' is not a global value
+
 print(counter.count) --> 0
 
 local c = counter()
@@ -73,15 +95,19 @@ print(counter.count) --> 2
 ----type testing----
 --------------------
 class [[A]]
+
   function conflict(self)
     print("A")
   end
+  
 _end()
 
 class [[B < A]] -- inheritance
+
   function conflict(self)
     print("B")
   end
+  
 _end()
 
 local a = A()
@@ -149,23 +175,94 @@ printTable(Outer.Inner.__type__) -- [Outer::Inner, Object]
 --------(from Ruby)----------
 -----------------------------
 module [[C]]
+
   function conflict(self)
     print("C")
   end
+  
 _end()
 
+
 module [[D]]
+
   function conflict(self)
     print("D")
   end
+  
 _end()
 
+
 class [[E < B]] -- inheritance
+
   include(C) -- mixin
   include(D)
+  
 _end()
+
 
 local e = E()
 e.conflict() -- print 'D'
 
 printTable(E.__type__) -- [E, D, C, B, A, Object]
+
+----------------------
+----method missing----
+-----(from Ruby)------
+----------------------
+
+class [[Person]]
+
+  function __init__(self, name)
+    self.name = name
+  end
+
+  function __missing__(self, method_name, ...)
+    self[method_name] = ...
+  end
+
+_end()
+
+local me = Person("Peer")
+me.age(24)
+me.location("Mars")
+
+print("My name is "..me.name..". I'm "..me.age.." years old. I come from "..me.location..".")
+
+
+----------------------
+------metamethods-----
+----------------------
+
+class [[Complex]]
+
+  function __init__(self, realpart, imagpart)
+    self.r = realpart
+    self.i = imagpart
+  end
+  
+  function __tostring(self)
+    return string.format("%f %s %fi", self.r, self.i > 0 and "+" or "-", math.abs(self.i))
+  end
+  
+  function __add(self, other)
+    return Complex(self.r + other.r, self.i + other.i)
+  end
+  
+_end()
+
+local x = Complex(3.0, -4.5)
+local y = Complex(2.0, 7.6)
+print("x = ", x)
+print("y = ", y)
+print("x + y = ", x + y)
+
+class [[Complex]] -- monkey patching
+  
+  function __sub(self, other)
+    return Complex(self.r - other.r, self.i - other.i)
+  end
+  
+_end()
+
+print("x - y = ", x - y)
+
