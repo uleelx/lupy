@@ -4,8 +4,8 @@ local unpack, concat, insert = unpack or table.unpack, table.concat, table.inser
 local ipairs, pairs, match = ipairs, pairs, string.match
 
 local metamethods = {
-  "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm",
-  "__concat", "__len", "__eq", "__lt", "__le","__newindex", "__call"
+  "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm", "__concat",
+  "__len", "__eq", "__lt", "__le", "__newindex", "__call", "__pairs", "__ipairs"
 }
 
 local Object = {__index = _ENV, __type__ = {"Object"}}
