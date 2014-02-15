@@ -287,7 +287,7 @@ class [[Test]] do
     return private[self].value
   end
   
-  local function store(self, value)
+  local function store(self, value) -- private method
     private[self].value = string.format("[--%s--]", value)
   end
   
@@ -319,3 +319,49 @@ print(test2.getValue())     -- [--Ning--]
 print(test.getValue())      -- [--Maud--]
 
 
+--------------------
+----polymorphism----
+--------------------
+
+class [[Animal]]
+
+  function __init__(self, name)  -- Constructor of the class
+    self.name = name
+  end
+  
+  function talk(self)            -- Abstract method, functionined by convention only
+    error("Subclass must implement abstract method")
+  end
+
+_end()
+
+
+class [[Cat < Animal]]
+
+  function talk(self)
+    return 'Meow!'
+  end
+  
+_end()
+
+
+class [[Dog < Animal]]
+
+  function talk(self)
+    return 'Woof! Woof!'
+  end
+  
+_end()
+
+
+local animals = Array(Cat('Missy'), Cat('Mr. Mistoffelees'), Dog('Lassie'))
+
+for animal in animals do
+  print(animal.name..': '..animal.talk())
+end
+
+-- prints the following:
+--
+-- Missy: Meow!
+-- Mr. Mistoffelees: Meow!
+-- Lassie: Woof! Woof!
