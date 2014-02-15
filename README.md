@@ -9,6 +9,15 @@ Philosophy
 
 "Things should be as simple as possible, but no simpler." [[1]](http://python-history.blogspot.com/2009/01/pythons-design-philosophy.html)
 
+Usage
+==========
+Copy *lupy.lua* file to your project or where your lua libraries stored.<br>
+Then write this in any Lua file where you want to use it:
+```lua
+local class = require 'lupy'
+```
+More usage can be found in the examples.
+
 Quick Look
 ==========
 
@@ -75,14 +84,9 @@ three
 
 ```
 
-Usage
+TODO
 ==========
-Copy *lupy.lua* file to your project or where your lua libraries stored.<br>
-Then write this in any Lua file where you want to use it:
-```lua
-local class = require 'lupy'
-```
-More usage can be found in the examples.
+Release its first stable version.
 
 License
 =======
