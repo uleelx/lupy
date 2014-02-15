@@ -1,7 +1,7 @@
-local getinfo, upvaluejoin = debug.getinfo, debug.upvaluejoin
+local getinfo, upvaluejoin, getlocal = debug.getinfo, debug.upvaluejoin, debug.getlocal
 local getfenv, setfenv, setmetatable, rawset, type = getfenv, setfenv, setmetatable, rawset, type
 local unpack, concat, insert = unpack or table.unpack, table.concat, table.insert
-local pairs, match = pairs, string.match
+local ipairs, pairs, match = ipairs, pairs, string.match
 
 local metamethods = {
   "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm",
@@ -11,6 +11,15 @@ local metamethods = {
 local Object = {__index = _ENV, __type__ = {"Object"}}
 setmetatable(Object, Object)
 
+local function _getlocal(k)
+  local i, name, val = 0
+  repeat
+    i = i + 1
+    name, val = getlocal(3, i)
+  until name == k or name == nil
+  return val
+end
+
 return function(name)
   if _VERSION == "Lua 5.2" then
     upvaluejoin(getinfo(1, 'f').func, 1,
@@ -18,7 +27,7 @@ return function(name)
   end
   local env = _ENV or getfenv(2)
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
-  local newclass = env[clsname]
+  local newclass = env[clsname] or _getlocal(clsname)
   if not newclass then
     local superclass = env[supername] or (env.__type__ and Object or env)
     newclass = {
@@ -50,7 +59,7 @@ return function(name)
         end
       end
     }
-    for _, k in pairs(metamethods) do newclass[k] = superclass[k] end
+    for _, k in ipairs(metamethods) do newclass[k] = superclass[k] end
     newclass.__class__ = newclass
     local meta = {
       __index = superclass,
