@@ -3,12 +3,14 @@ require 'array'
 require 'curry'
 
 local class = require 'lupy'
+local namespace = class -- alias
 local module = class -- alias
 local printTable = compose(print, Array)
 
--- class and module refers to the same function, but we assume this:
--- 1. module is a set of functions and constant variables (no inheritance, no instance)
--- 2. class is a prototype or template for creating objects (cannot be mixed in)
+-- namespace, module and class refers to the same function, but we assume this:
+-- 1. namespace is just a container of things (no mixin, no inheritance, no instance)
+-- 2. module is a set of functions and constant variables (no inheritance, no instance)
+-- 3. class is a prototype or template for creating objects (cannot be mixed in)
 
 
 -------------------------------
@@ -35,30 +37,37 @@ I.say("Hello world!")
 ----namespace----
 -----------------
 
--- see 'inner class' section for more namespace examples
+-- classes are stored in global(where classes are created) by default
+-- if you want to take them into a table, use lupy as a namespace function
 
--- open an existing module, class or raw table to do monkey patching
-module [[math]]
+local root = {}
 
-  function powmod(x, y, m)
-    local result = 1
-    local r
-    x = x % m
-    while y ~= 0 do
-      y, r = math.floor(y / 2), math.fmod(y, 2)
-      if r == 1 then
-        result = (result*x) % m
-      end
-      x = (x*x) % m
+namespace [[root]]
+
+  class [[bin]]
+    
+    function execute(self)
+      print("I'm an instance of bin.")
     end
-    return result
-  end
-
+    
+  _end()
+  
+  class [[tmp]]
+  
+  _end()
+  
 _end()
 
-if _VERSION == "Lua 5.1" then setfenv(math.powmod, _G) end -- because 'math' module is not created by lupy
+print(bin)     -- nil
+print(tmp)     -- nil
 
-print("10**11 mod 12 = "..math.powmod(10, 11, 12)) --> 4
+printTable(root.bin.__type__) -- [bin, Object]
+printTable(root.tmp.__type__) -- [tmp, Object]
+
+local grep = root.bin()
+grep.execute() -- prints 'I'm an instance of bin.'
+
+-- see 'inner class' section for more namespace examples
 
 
 ----------------------
@@ -139,18 +148,17 @@ end
 class [[Outer]]
   
   function __init__(self)
-    self.inner = self.Inner()
-    self.__class__.inner = self.Inner()
+    self.i = self.Inner()
   end
   
   function conflict(self)
-    print(self, "outer")
+    print("outer")
   end
   
   class [[Inner]]
 
     function conflict(self)
-      print(self, "inner")
+      print("inner")
     end
 
   _end()
@@ -158,15 +166,10 @@ class [[Outer]]
 _end()
 
 
-local outer = Outer()
-local inner = Outer.Inner()
-conflict()                -- 'global'
-outer.conflict()          -- outer instance, 'outer'
-outer.inner.conflict()    -- inner instance of outer instance, 'inner'
-Outer.inner.conflict()    -- inner instance of Outer class, 'inner'
-inner.conflict()          -- inner instance, 'inner'
-Outer.conflict()          -- nil, 'outer'
-Outer.Inner.conflict()    -- nil, 'inner'
+local o = Outer()
+conflict()        -- global
+o.conflict()      -- outer
+o.i.conflict()    -- inner
 printTable(Outer.Inner.__type__) -- [Outer::Inner, Object]
 
 
@@ -204,6 +207,7 @@ local e = E()
 e.conflict() -- print 'D'
 
 printTable(E.__type__) -- [E, D, C, B, A, Object]
+
 
 ----------------------
 ----method missing----
@@ -256,7 +260,12 @@ print("x = ", x)
 print("y = ", y)
 print("x + y = ", x + y)
 
-class [[Complex]] -- monkey patching
+
+--------------------------
+------monkey patching-----
+--------------------------
+
+class [[Complex]] -- open an existing class
   
   function __sub(self, other)
     return Complex(self.r - other.r, self.i - other.i)
@@ -279,44 +288,44 @@ class [[Test]] do
 
   local private = {}
   
-  function __init__(self, value)
-    private[self] = {value = value}
+  function __init__(self)
+    private[self] = {}
   end
   
-  function getValue(self)
-    return private[self].value
+  function getName(self)
+    return private[self].name
   end
   
-  local function store(self, value) -- private method
-    private[self].value = string.format("[--%s--]", value)
+  local function say(self) -- private method
+    print("Hi, I'm "..private[self].name..".")
   end
   
-  function setValue(self, value)
-    store(self, value)
+  function setName(self, name)
+    private[self].name = name
+    say(self)
   end
 
 end _end()
 
-print(private)              -- nil
-print(store)                -- nil
+print(private)            -- nil
+print(say)                -- nil
 
-local test = Test("Peer")
-print(test.private)         -- nil
-print(test.store)           -- nil
+local test = Test()
+print(test.private)       -- nil
+print(test.say)           -- nil
 
-print(test.value)           -- nil
-print(test.getValue())      -- Peer
+test.setName("Peer")
+print(test.name)           -- nil
+print(test.getName())      -- Peer
 
-test.setValue("Maud")
-print(test.getValue())      -- [--Maud--]
+test.setName("Maud")
+print(test.getName())      -- Maud
 
-local test2 = Test("Peer")
-print(test2.getValue())     -- Peer
-print(test.getValue())      -- [--Maud--]
 
-test2.setValue("Ning")
-print(test2.getValue())     -- [--Ning--]
-print(test.getValue())      -- [--Maud--]
+local test2 = Test()
+test2.setName("Peer")
+print(test2.getName())     -- Peer
+print(test.getName())      -- Maud
 
 
 --------------------
