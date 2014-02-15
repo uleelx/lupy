@@ -323,6 +323,8 @@ print(test.getValue())      -- [--Maud--]
 ----polymorphism----
 --------------------
 
+-- duck typing as Python and Ruby does
+
 class [[Animal]]
 
   function __init__(self, name)  -- Constructor of the class
@@ -354,7 +356,7 @@ class [[Dog < Animal]]
 _end()
 
 
-local animals = Array(Cat('Missy'), Cat('Mr. Mistoffelees'), Dog('Lassie'))
+local animals = iter{Cat('Missy'), Cat('Mr. Mistoffelees'), Dog('Lassie')}
 
 for animal in animals do
   print(animal.name..': '..animal.talk())
