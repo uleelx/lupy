@@ -266,3 +266,56 @@ _end()
 
 print("x - y = ", x - y)
 
+
+----------------------------
+-------encapsulation--------
+-----(private members)------
+----------------------------
+
+-- lupy doesn't offer unique mechanism to do encapsulation
+-- but it's easy to do it using Lua's block mechanism(lexical scope)
+
+class [[Test]] do
+
+  local private = {}
+  
+  function __init__(self, value)
+    private[self] = {value = value}
+  end
+  
+  function getValue(self)
+    return private[self].value
+  end
+  
+  local function store(self, value)
+    private[self].value = string.format("[--%s--]", value)
+  end
+  
+  function setValue(self, value)
+    store(self, value)
+  end
+
+end _end()
+
+print(private)              -- nil
+print(store)                -- nil
+
+local test = Test("Peer")
+print(test.private)         -- nil
+print(test.store)           -- nil
+
+print(test.value)           -- nil
+print(test.getValue())      -- Peer
+
+test.setValue("Maud")
+print(test.getValue())      -- [--Maud--]
+
+local test2 = Test("Peer")
+print(test2.getValue())     -- Peer
+print(test.getValue())      -- [--Maud--]
+
+test2.setValue("Ning")
+print(test2.getValue())     -- [--Ning--]
+print(test.getValue())      -- [--Maud--]
+
+
