@@ -84,10 +84,6 @@ three
 
 ```
 
-TODO
-==========
-Release its first stable version.
-
 License
 =======
 
