@@ -25,7 +25,7 @@ class [[Logger]]
 
   -- create level functions, __class__ refers to class itself
   for _, level in ipairs(levels) do
-    __class__[level] = function (self, message)
+    _ENV[level] = function (self, message)
       self.commit(level, message)
     end
   end

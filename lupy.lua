@@ -1,6 +1,6 @@
-local getinfo, upvaluejoin, getlocal = debug.getinfo, debug.upvaluejoin, debug.getlocal
-local getfenv, setfenv, setmetatable, rawset, type = getfenv, setfenv, setmetatable, rawset, type
-local unpack, concat, insert = unpack or table.unpack, table.concat, table.insert
+local getinfo, upvaluejoin = debug.getinfo, debug.upvaluejoin
+local setmetatable, rawset, type = setmetatable, rawset, type
+local unpack, concat, insert = table.unpack, table.concat, table.insert
 local ipairs, pairs, match = ipairs, pairs, string.match
 
 local metamethods = {
@@ -8,84 +8,59 @@ local metamethods = {
   "__len", "__eq", "__lt", "__le", "__newindex", "__call", "__pairs", "__ipairs"
 }
 
-local Object = {__index = _ENV, __type__ = {"Object"}}
-setmetatable(Object, Object)
-
-local function _getlocal(k)
-  local i, name, val = 0
-  repeat
-    i = i + 1
-    name, val = getlocal(3, i)
-  until name == k or name == nil
-  return val
+local function is(self, c)
+  return match(concat(self.__type__, ','), (c or "([^,]+)"))
 end
 
-return function(name)
-  if _VERSION == "Lua 5.2" then
-    upvaluejoin(getinfo(1, 'f').func, 1,
-                getinfo(2, 'f').func, 1)
+local function include(class, m)
+  insert(class.__type__, 2, m.__type__[1])
+  for k, v in pairs(m) do
+    if k ~= "__index" and k ~= "__type__"and k ~= "include" then
+      class[k] = v
+    end
   end
-  local env = _ENV or getfenv(2)
+end
+
+local function retrieve(self, member_name)
+  local class = self.__class__
+  local member = class[member_name]
+  if type(member) == "function" then
+    return function(...) return member(self, ...) end
+  else
+    return member or class.__missing__ and function(...)
+      return class.__missing__(self, member_name, ...)
+    end
+  end
+end
+
+local Object = {__index = _ENV, __type__ = {"Object"}, is = is}
+setmetatable(Object, Object)
+
+local function class(name)
+  local env = _ENV
   local clsname, supername = match(name, "([%w_]*)%s*<?%s*([%w_]*)")
-  local newclass = env[clsname] or _getlocal(clsname)
+  local newclass = env[clsname]
   if not newclass then
-    local superclass = env[supername] or (env.__type__ and Object or env)
+    local superclass = env[supername] or Object
     newclass = {
-      __type__ = {
-        env.__type__ and env.__type__[1].."::"..clsname or clsname,
-        unpack(superclass.__type__ or {"Object"})
-      },
-      is = function(self, c)
-        return match(concat(self.__type__, ','), (c or "([^,]+)"))
-      end,
-      include = function(m)
-        insert(newclass.__type__, 2, m.__type__[1])
-        for k, v in pairs(m) do
-          if k ~= "__index" and
-             k ~= "__type__" and k ~= "__class__" and
-             k ~= "include" and k ~= "is" then
-            newclass[k] = v
-          end
-        end
-      end,
-      __index = function(self, member_name)
-        local member = newclass[member_name]
-        if type(member) == "function" then
-          return function(...) return member(self, ...) end
-        else
-          return member or newclass.__missing__ and function(...)
-            return newclass.__missing__(self, member_name, ...)
-          end
-        end
-      end
+      __type__ = {clsname, unpack(superclass.__type__)},
+      include = function(m) include(newclass, m) end,
+      __index = retrieve
     }
     for _, k in ipairs(metamethods) do newclass[k] = superclass[k] end
-    newclass.__class__ = newclass
-    local meta = {
+    setmetatable(newclass, {
       __index = superclass,
       __call = function(class, ...)
-        local instance = setmetatable({}, class)
+        local instance = setmetatable({__class__ = class}, class)
         if class.__init__ then class.__init__(instance, ...) end
         return instance
       end
-    }
-    if _VERSION == "Lua 5.1" then
-      meta.__newindex = function(class, k, v)
-        if type(v) == "function" then setfenv(v, _G) end
-        rawset(class, k, v)
-      end
-    end
-    setmetatable(newclass, meta)
+    })
     env[clsname] = newclass
   end
-  if _VERSION == "Lua 5.1" then
-    newclass._end = function()
-      newclass._end = nil
-      setfenv(2, env)
-    end
-    setfenv(2, newclass)
-  else
-    newclass._end = function() _ENV, _end = env end
-    _ENV = newclass
-  end
+  upvaluejoin(class, 1, getinfo(2, 'f').func, 1)
+  newclass._end = function() _ENV, _end = env end
+  _ENV = newclass
 end
+
+return class

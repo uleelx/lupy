@@ -2,7 +2,7 @@ lupy
 ===========
 
 A small Python-style OO implementation for Lua. It also gains some good features from Ruby.<br>
-It has been tested on Lua 5.2.3 and LuaJIT 2.0.2 using the examples in repo. Welcome to fork and test it more.
+It has been tested on Lua 5.2.3 using the examples in repo. Welcome to fork and test it more.
 
 Philosophy
 ===========

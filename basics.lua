@@ -40,7 +40,7 @@ I.say("Hello world!")
 -- classes are stored in global(where classes are created) by default
 -- if you want to take them into a table, use lupy as a namespace function
 
-local root = {}
+root = {}
 
 namespace [[root]]
 
