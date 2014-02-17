@@ -40,8 +40,6 @@ I.say("Hello world!")
 -- classes are stored in global(where classes are created) by default
 -- if you want to take them into a table, use lupy as a namespace function
 
-root = {}
-
 namespace [[root]]
 
   class [[bin]]
@@ -170,7 +168,7 @@ local o = Outer()
 conflict()        -- global
 o.conflict()      -- outer
 o.i.conflict()    -- inner
-printTable(Outer.Inner.__type__) -- [Outer::Inner, Object]
+printTable(Outer.Inner.__type__) -- [Inner, Object]
 
 
 -----------------------------
