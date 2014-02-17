@@ -23,7 +23,7 @@ class [[Logger]]
     )
   end
 
-  -- create level functions, __class__ refers to class itself
+  -- create level functions, _ENV refers to class itself
   for _, level in ipairs(levels) do
     _ENV[level] = function (self, message)
       self.commit(level, message)

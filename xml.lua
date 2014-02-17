@@ -20,7 +20,7 @@ class [[XML]]
     return self.builder.join("\n")
   end
   
-  function __missing__(self, tag, ...) -- using __missing to handle unpredictable tag name given by user
+  function __missing__(self, tag, ...) -- using __missing__ to handle unpredictable tag name given by user
     if type(...) == "table" then
       return self.Node(tag, self.cat(...), true)
     else
