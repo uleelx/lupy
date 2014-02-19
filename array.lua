@@ -1,14 +1,13 @@
 require 'itertools'
 
 local class = require 'lupy'
-local unpack = unpack or table.unpack
 
 class [[Array < Sequence]]
 
   function __init__(self, ...)
     self.seq = {...}
     if #self.seq == 1 and type(self.seq[1]) == "table" then
-      self.seq = {unpack(self.seq[1])}
+      self.seq = {table.unpack(self.seq[1])}
     end
     Sequence.__init__(self, self.seq)
   end

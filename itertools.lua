@@ -1,7 +1,6 @@
 local class = require 'lupy'
-local module = class -- alias
 
-local unpack = unpack or table.unpack
+local module = class -- alias
 
 ---------------
 ---Interface---
@@ -11,7 +10,7 @@ module [[Iterable]]
 
   function __call(self)
     local items = {self.next()}
-    if #items > 0 then return unpack(items) end
+    if #items > 0 then return table.unpack(items) end
     self.reset()
   end
 
@@ -138,7 +137,7 @@ class [[Map]]
       x[#x + 1] = it()
       done = done or x[#x] == nil
     end
-    if not done then return self.func(unpack(x)) end
+    if not done then return self.func(table.unpack(x)) end
   end
 
 _end()

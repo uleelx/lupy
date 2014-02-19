@@ -26,8 +26,6 @@ local class = require 'lupy'
 
 local module = class -- alias
 
-local unpack = unpack or table.unpack
-
 module [[Iterable]]
 
   function __call(self)

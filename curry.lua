@@ -2,14 +2,12 @@
 
 require 'itertools'
 
-local unpack = unpack or table.unpack
-
 function curry(func, ...)
   local prebinding = {...}
   local still_need = math.max(1, debug.getinfo(func, "u").nparams - #prebinding)
   local function helper(arg_chain, still_need)
     if still_need < 1 then
-      return func(unpack(list(arg_chain())))
+      return func(table.unpack(list(arg_chain())))
     else
       return function (...)
         local tail_args = {...}
@@ -28,9 +26,9 @@ function compose(f, g, ...)
   return function(...)
     local state = {...}
     for lambda in reverse(lambdas) do
-      state = {lambda(unpack(state))}
+      state = {lambda(table.unpack(state))}
     end
-    return unpack(state)
+    return table.unpack(state)
   end
 end
 
@@ -39,7 +37,7 @@ function travel(process, iterator)
     local items = {iterator()}
     if #items > 0 then
       if type(process) == "function" then
-        process(unpack(items))
+        process(table.unpack(items))
       end
     end
   until #items == 0
