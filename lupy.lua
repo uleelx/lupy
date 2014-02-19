@@ -1,8 +1,8 @@
 local unique = {__index = true, __type__ = true, include = true}
 
 local metamethods = {
-  "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm", "__concat",
-  "__len", "__eq", "__lt", "__le", "__newindex", "__call", "__pairs", "__ipairs"
+  "__add", "__sub", "__mul", "__div", "__mod", "__pow", "__unm", "__concat", "__len",
+  "__eq", "__lt", "__le", "__newindex", "__call", "__pairs", "__ipairs", "__gc"
 }
 
 local function new(class, ...)
