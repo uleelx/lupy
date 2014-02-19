@@ -31,7 +31,9 @@ module [[Iterable]]
 
   function __call(self)
     local items = {self.next()}
-    if #items > 0 then return table.unpack(items) end
+    if #items > 0 then
+      return table.unpack(items)
+    end
     self.reset()
   end
 

@@ -10,7 +10,9 @@ module [[Iterable]]
 
   function __call(self)
     local items = {self.next()}
-    if #items > 0 then return table.unpack(items) end
+    if #items > 0 then
+      return table.unpack(items)
+    end
     self.reset()
   end
 
@@ -24,16 +26,16 @@ _end()
 class [[Sequence]]
 
   include(Iterable)
-  
+
   function __init__(self, seq)
     self.seq = seq
     self.reset()
   end
-  
+
   function reset(self)
     self.pointer = 0
   end
-  
+
   function next(self)
     self.pointer = self.pointer + 1
     return self.seq[self.pointer]
@@ -45,7 +47,7 @@ _end()
 class [[Chain]]
 
   include(Iterable)
-  
+
   function __init__(self, ...)
     self.iters = iter{...}
     self.reset()
@@ -74,7 +76,7 @@ class [[Reverse < Sequence]]
   function reset(self)
     self.pointer = #self.seq + 1
   end
-  
+
   function next(self)
     if not self.pointer then self.reset() end
     self.pointer = self.pointer - 1
@@ -94,11 +96,11 @@ class [[Range]]
     self.step = s or (j < i and -1 or 1)
     self.reset()
   end
-  
+
   function reset(self)
     self.pointer = self.start - self.step
   end
-  
+
   function next(self)
     self.pointer = self.pointer + self.step
     if (self.step > 0 and self.pointer <= self.last)
@@ -123,13 +125,13 @@ class [[Map]]
     end
     self.its = iter(self.its)
   end
-  
+
   function reset(self)
     for it in self.its do
       it.reset()
     end
   end
-  
+
   function next(self)
     local x = {}
     local done = false
@@ -145,23 +147,23 @@ _end()
 class [[Pair]]
 
   include(Iterable)
-  
+
   function __init__(self, t)
     self.table = t
     self.reset()
   end
-  
+
   function reset(self)
     self.yield = pairs(self.table)
     self.pointer = nil
   end
-  
+
   function next(self)
     local k, v = self.yield(self.table, self.pointer)
     self.pointer = k
     return k, v
   end
-  
+
 _end()
 
 --------------
@@ -169,7 +171,7 @@ _end()
 --------------
 
 function iter(seq)
-  if seq.is and seq.is("Iterable") then 
+  if seq.is and seq.is("Iterable") then
     return seq
   elseif type(seq) == "table" then
     return Sequence(seq)
