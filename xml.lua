@@ -19,8 +19,9 @@ class [[XML]]
   function __tostring(self)
     return self.builder.join("\n")
   end
-  
-  function __missing__(self, tag, ...) -- using __missing__ to handle unpredictable tag name given by user
+
+  -- use this to handle unpredictable tag name given by user
+  function __missing__(self, tag, ...)
     if type(...) == "table" then
       return self.Node(tag, self.cat(...), true)
     else
@@ -76,4 +77,26 @@ xml.append(
 )
 print(xml)
 
+--[[
+prints this:
+
+<Person>
+<Name>Peer</Name>
+<Gender>Male</Gender>
+<Age>24</Age>
+<Score>
+<Math>A</Math>
+<Physics>B</Physics>
+</Score>
+</Person>
+<Person>
+<Name>Maud</Name>
+<Gender>Female</Gender>
+<Age>25</Age>
+<Score>
+<Music>C</Music>
+<Chemistry>A</Chemistry>
+</Score>
+</Person>
+]]
 end
