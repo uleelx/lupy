@@ -71,14 +71,11 @@ _end()
 
 class [[Reverse < Sequence]]
 
-  include(Iterable)
-
   function reset(self)
     self.pointer = #self.seq + 1
   end
 
   function next(self)
-    if not self.pointer then self.reset() end
     self.pointer = self.pointer - 1
     return self.seq[self.pointer]
   end
@@ -107,7 +104,6 @@ class [[Range]]
       or (self.step < 0 and self.pointer >= self.last) then
       return self.pointer
     end
-    self.reset()
   end
 
 _end()
