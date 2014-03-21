@@ -167,22 +167,24 @@ _end()
 --------------
 
 function iter(seq)
-  if seq.is and seq.is("Iterable") then
-    return seq
-  elseif type(seq) == "table" then
+  if type(seq) == "table" then
+    if seq.is and seq.is("Iterable") then
+      return seq
+    end
     return Sequence(seq)
   end
   error "Can not iterate"
 end
 
 function list(iterator)
-  if iterator.is and iterator.is("Iterable") then
-    local sequence = {}
-    for x in iterator do
-      table.insert(sequence, x)
+  if type(iterator) == "table" then
+    if iterator.is and iterator.is("Iterable") then
+      local sequence = {}
+      for x in iterator do
+        table.insert(sequence, x)
+      end
+      return sequence
     end
-    return sequence
-  elseif type(iterator) == "table" then
     return iterator
   end
   error "Can not make a list"

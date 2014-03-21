@@ -24,66 +24,37 @@ Quick Look
 ```lua
 local class = require 'lupy'
 
-local module = class -- alias
+class [[Person]]
 
+  function __init__(self, name)
+    self.name = name
+  end
 
-module [[Iterable]]
-
-  function __call(self)
-    local items = {self.next()}
-    if #items > 0 then
-      return table.unpack(items)
-    end
-    self.reset()
+  function say(self, msg)
+    print(self.name.." says: "..msg)
   end
 
 _end()
 
+local I = Person("Peer")
 
-class [[Sequence]]
+I.say("Hello world!")
 
-  include(Iterable)
-  
-  function __init__(self, seq)
-    self.seq = seq
-    self.reset()
-  end
-  
-  function reset(self)
-    self.pointer = 0
-  end
-  
-  function next(self)
-    self.pointer = self.pointer + 1
-    return self.seq[self.pointer]
-  end
-
-_end()
-
-
-function iter(seq)
-  if seq.is and seq.is("Iterable") then 
-    return seq
-  elseif type(seq) == "table" then
-    return Sequence(seq)
-  end
-  error "Can not iterate"
-end
-
-
-local ary = iter{'one', 'two', 'three'}
-
-for e in ary do
-  print(e)
-end
-
---[[
-one
-two
-three
-]]
+-- Peer says: Hello world!
 
 ```
+
+Features
+=======
+
+- Python-like constructor, method definition, instance creating and method calling
+- Ruby-like inheritance, mixins, missing methods handler and monkey patching
+- lexical scope based encapsulation
+- inheritance tree based type testing
+- namespace and inner class support
+- metamethods support
+- class property support
+- abstract method support
 
 License
 =======

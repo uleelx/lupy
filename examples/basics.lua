@@ -22,7 +22,7 @@ class [[Person]]
   function __init__(self, name)
     self.name = name
   end
-  
+
   function say(self, msg)
     print(self.name..": "..msg)
   end
@@ -30,6 +30,7 @@ class [[Person]]
 _end()
 
 local I = Person("Peer")
+
 I.say("Hello world!")
 
 
@@ -43,21 +44,21 @@ I.say("Hello world!")
 namespace [[root]]
 
   class [[bin]]
-    
+
     function execute(self)
       print("I'm an instance of bin.")
     end
-    
+
   _end()
-  
+
   class [[tmp]]
-  
+
   _end()
-  
+
 _end()
 
-print(bin)     -- nil
-print(tmp)     -- nil
+assert(bin == nil)
+assert(tmp == nil)
 
 printTable(root.bin.__type__) -- [bin, Object]
 printTable(root.tmp.__type__) -- [tmp, Object]
@@ -74,28 +75,28 @@ grep.execute() -- prints 'I'm an instance of bin.'
 class [[counter]]
 
   count = 0 -- class property
-  
+
   function __init__(self)
     self.__class__.count = self.__class__.count + 1 -- __class__ refers to counter
   end
-  
+
 _end()
 
-print(count) -- nil, because 'count' is not a global value
+assert(count == nil) -- because 'count' is not a global value
 
-print(counter.count) --> 0
+assert(counter.count == 0)
 
 local c = counter()
-print(c.count) --> 1
+assert(c.count == 1)
 
-print(counter.count) --> 1
+assert(counter.count == 1)
 
 local d = counter()
-print(d.count) --> 2
+assert(d.count == 2)
 
-print(c.count) --> 2
+assert(c.count == 2)
 
-print(counter.count) --> 2
+assert(counter.count == 2)
 
 
 --------------------
@@ -106,7 +107,7 @@ class [[A]]
   function conflict(self)
     print("A")
   end
-  
+
 _end()
 
 class [[B < A]] -- inheritance
@@ -114,7 +115,7 @@ class [[B < A]] -- inheritance
   function conflict(self)
     print("B")
   end
-  
+
 _end()
 
 local a = A()
@@ -123,14 +124,14 @@ local b = B()
 local a_type = a.is() -- pass nil to instance function 'is' to get the instance type name
 local b_type = b.is()
 
-print(a_type)           -- 'A'
-print(b_type)           -- 'B'
+assert(a_type == 'A')
+assert(b_type == 'B')
 
-print(a.is(a_type))     -- 'A'
-print(a.is(b_type))     -- nil
+assert(a.is(a_type) == 'A')
+assert(a.is(b_type) == nil)
 
-print(b.is(a_type))     -- 'A'
-print(b.is(b_type))     -- 'B'
+assert(b.is(a_type) == 'A')
+assert(b.is(b_type) == 'B')
 
 printTable(A.__type__) -- [A, Object]
 printTable(B.__type__) -- [B, A, Object]
@@ -140,23 +141,23 @@ printTable(B.__type__) -- [B, A, Object]
 ----inner class-----
 --------------------
 function conflict()
-  print("global")
+  return "global"
 end
 
 class [[Outer]]
-  
+
   function __init__(self)
     self.i = self.Inner()
   end
-  
+
   function conflict(self)
-    print("outer")
+    return "outer"
   end
-  
+
   class [[Inner]]
 
     function conflict(self)
-      print("inner")
+      return "inner"
     end
 
   _end()
@@ -165,9 +166,10 @@ _end()
 
 
 local o = Outer()
-conflict()        -- global
-o.conflict()      -- outer
-o.i.conflict()    -- inner
+assert(conflict() == 'global')
+assert(o.conflict() == 'outer')
+assert(o.i.conflict() == 'inner')
+
 printTable(Outer.Inner.__type__) -- [Inner, Object]
 
 
@@ -180,16 +182,16 @@ module [[C]]
   function conflict(self)
     print("C")
   end
-  
+
 _end()
 
 
 module [[D]]
 
   function conflict(self)
-    print("D")
+    return "D"
   end
-  
+
 _end()
 
 
@@ -197,12 +199,12 @@ class [[E < B]] -- inheritance
 
   include(C) -- mixin
   include(D)
-  
+
 _end()
 
 
 local e = E()
-e.conflict() -- print 'D'
+assert(e.conflict() == 'D')
 
 printTable(E.__type__) -- [E, D, C, B, A, Object]
 
@@ -241,15 +243,15 @@ class [[Complex]]
     self.r = realpart
     self.i = imagpart
   end
-  
+
   function __tostring(self)
     return string.format("%f %s %fi", self.r, self.i > 0 and "+" or "-", math.abs(self.i))
   end
-  
+
   function __add(self, other)
     return Complex(self.r + other.r, self.i + other.i)
   end
-  
+
 _end()
 
 local x = Complex(3.0, -4.5)
@@ -264,11 +266,11 @@ print("x + y = ", x + y)
 --------------------------
 
 class [[Complex]] -- open an existing class
-  
+
   function __sub(self, other)
     return Complex(self.r - other.r, self.i - other.i)
   end
-  
+
 _end()
 
 print("x - y = ", x - y)
@@ -285,19 +287,19 @@ print("x - y = ", x - y)
 class [[Test]] do
 
   local private = {}
-  
+
   function __init__(self)
     private[self] = {}
   end
-  
+
   function getName(self)
     return private[self].name
   end
-  
+
   local function say(self) -- private method
     print("Hi, I'm "..private[self].name..".")
   end
-  
+
   function setName(self, name)
     private[self].name = name
     say(self)
@@ -305,25 +307,24 @@ class [[Test]] do
 
 end _end()
 
-print(private)            -- nil
-print(say)                -- nil
+assert(private == nil)
+assert(say == nil)
 
 local test = Test()
-print(test.private)       -- nil
-print(test.say)           -- nil
+assert(test.private == nil)
+assert(test.say == nil)
 
 test.setName("Peer")
-print(test.name)           -- nil
-print(test.getName())      -- Peer
+assert(test.name == nil)
+assert(test.getName() == 'Peer')
 
 test.setName("Maud")
-print(test.getName())      -- Maud
-
+assert(test.getName() == 'Maud')
 
 local test2 = Test()
 test2.setName("Peer")
-print(test2.getName())     -- Peer
-print(test.getName())      -- Maud
+assert(test2.getName() == 'Peer')
+assert(test.getName() == 'Maud')
 
 
 --------------------
@@ -337,7 +338,7 @@ class [[Animal]]
   function __init__(self, name)  -- Constructor of the class
     self.name = name
   end
-  
+
   function talk(self)            -- Abstract method, functionined by convention only
     error("Subclass must implement abstract method")
   end
@@ -350,7 +351,7 @@ class [[Cat < Animal]]
   function talk(self)
     return 'Meow!'
   end
-  
+
 _end()
 
 
@@ -359,7 +360,7 @@ class [[Dog < Animal]]
   function talk(self)
     return 'Woof! Woof!'
   end
-  
+
 _end()
 
 

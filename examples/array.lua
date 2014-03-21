@@ -103,7 +103,7 @@ _end()
 local a = Array(1, 2, 3, 4, 5) -- create an Array instance(like Python)
 print("a = ", a, "initial state")
 
-for v in a do -- test for 'Iterator' mixin
+for v in a do -- test for inheritance from 'Sequence'
   io.write(v.." ")
 end
 print("\titerate 'a'")
