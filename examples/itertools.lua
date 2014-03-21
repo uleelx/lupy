@@ -1,12 +1,20 @@
 local class = require 'lupy'
 
-local module = class -- alias
+local interface = class -- alias
 
 ---------------
 ---Interface---
 ---------------
 
-module [[Iterable]]
+interface [[Iterable]]
+
+  function next(self)
+    error("'next' is not implemented")
+  end
+
+  function reset(self)
+    error("'reset' is not implemented")
+  end
 
   function __call(self)
     local items = {self.next()}
