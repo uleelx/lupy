@@ -3,22 +3,22 @@
 require 'itertools'
 
 function curry(func, ...)
-  local prebinding = {...}
-  local still_need = math.max(1, debug.getinfo(func, "u").nparams - #prebinding)
+  local prebind = {...}
+  local nparams = debug.getinfo(func, "u").nparams
   local function helper(arg_chain, still_need)
     if still_need < 1 then
-      return func(table.unpack(list(arg_chain())))
+      return func(table.unpack(list(arg_chain)))
     else
       return function (...)
         local tail_args = {...}
         return helper(
-          function () return chain(arg_chain(), tail_args) end,
+          chain(arg_chain, tail_args),
           still_need - math.max(1, #tail_args)
         )
       end
     end
   end
-  return helper(function () return prebinding end, still_need)
+  return helper(prebind, math.max(1, nparams - #prebind))
 end
 
 function compose(f, g, ...)
